@@ -638,13 +638,13 @@ namespace LLVMJIT
 				"rodeos_internal.indirect_call_oob",FunctionType::get(),{});
 
 			// Load the type for this table entry.
-			auto functionTypePointerPointer = irBuilder.CreateInBoundsGEP(moduleContext.defaultTablePointer,{functionIndexZExt,emitLiteral((U32)0)});
-			auto functionTypePointer = irBuilder.CreateLoad(functionTypePointerPointer);
-			auto llvmCalleeType = emitLiteralPointer(calleeType,llvmI8PtrType);
+			auto functionTypePointer = irBuilder.CreateInBoundsGEP(moduleContext.defaultTablePointer,{functionIndexZExt,emitLiteral((U32)0)});
+			auto functionType = irBuilder.CreateLoad(functionTypePointer);
+			auto llvmCalleeType = emitLiteral((I64)imm.type.index);
 			
 			// If the function type doesn't match, trap.
 			emitConditionalTrapIntrinsic(
-				irBuilder.CreateICmpNE(llvmCalleeType,functionTypePointer),
+				irBuilder.CreateICmpNE(llvmCalleeType,functionType),
 				"rodeos_internal.indirect_call_mismatch",
 				FunctionType::get(),{}
 				);
@@ -1059,7 +1059,7 @@ namespace LLVMJIT
 		if(moduleInstance->defaultTable)
 		{
 			auto tableElementType = llvm::StructType::get(context,{
-				llvmI8PtrType,
+				llvmI64Type,
 				llvmI8PtrType
 				});
 			defaultTablePointer = emitLiteralPointer(moduleInstance->defaultTable->baseAddress,tableElementType->getPointerTo());

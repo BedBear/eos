@@ -146,6 +146,12 @@ namespace Runtime
 			}
 			moduleInstance->exportMap[exportIt.name] = exportedObject;
 		}
+
+      //load up invalid types in to this module's table XXX
+      if(moduleInstance->tables.size()) {
+         for(unsigned int i = 0; i < module.tables.defs[0].type.size.min; ++i)
+            moduleInstance->tables[0]->baseAddress[i].type = -1;
+      }
 		
 		// Copy the module's table segments into the module's default table.
 		for(const TableSegment& tableSegment : module.tableSegments)
@@ -161,7 +167,11 @@ namespace Runtime
 			{
 				const Uptr functionIndex = tableSegment.indices[index];
 				WAVM_ASSERT_THROW(functionIndex < moduleInstance->functions.size());
-				setTableElement(table,baseOffset + index,moduleInstance->functions[functionIndex]);
+            if(functionIndex < module.functions.imports.size())
+               table->baseAddress[baseOffset + index].type = module.functions.imports[functionIndex].type.index;
+            else
+               table->baseAddress[baseOffset + index].type = module.functions.defs[functionIndex-module.functions.imports.size()].type.index;
+		      table->baseAddress[baseOffset + index].value = moduleInstance->functions[functionIndex]->nativeFunction;
 			}
 		}
 

@@ -58,7 +58,7 @@ namespace Runtime
 	{
 		struct FunctionElement
 		{
-			const FunctionType* type;
+			I64 type;
 			void* value;
 		};
 

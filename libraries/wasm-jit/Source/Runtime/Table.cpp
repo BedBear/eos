@@ -66,15 +66,6 @@ namespace Runtime
 
 	ObjectInstance* setTableElement(TableInstance* table,Uptr index,ObjectInstance* newValue)
 	{
-		// Write the new table element to both the table's elements array and its indirect function call data.
-		WAVM_ASSERT_THROW(index < table->elements.size());
-		FunctionInstance* functionInstance = asFunction(newValue);
-		WAVM_ASSERT_THROW(functionInstance->nativeFunction);
-		table->baseAddress[index].type = functionInstance->type;
-		table->baseAddress[index].value = functionInstance->nativeFunction;
-		auto oldValue = table->elements[index];
-		table->elements[index] = newValue;
-		return oldValue;
 	}
 
 	Uptr getTableNumElements(TableInstance* table)
