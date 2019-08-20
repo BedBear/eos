@@ -34,8 +34,13 @@ namespace eosio { namespace chain {
       _timer.stop();
    }
 
+   void transaction_checktime_timer::set_expiry_callback(void(*func)(void*), void* user) {
+      _timer.set_expiry_callback(func, user);
+   }
+
    transaction_checktime_timer::~transaction_checktime_timer() {
       stop();
+      _timer.set_expiry_callback(nullptr, nullptr);
    }
 
    transaction_context::transaction_context( controller& c,
@@ -176,8 +181,12 @@ namespace eosio { namespace chain {
 
       if(control.skip_trx_checks())
          transaction_timer.start(fc::time_point::maximum());
-      else
+      else {
          transaction_timer.start(_deadline);
+         transaction_timer.set_expiry_callback([](void*) {
+            printf("************************ example!!\n");
+         }, nullptr);
+      }
 
       is_initialized = true;
    }
